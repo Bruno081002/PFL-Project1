@@ -1,0 +1,33 @@
+Project note:
+
+
+Function 1:
+We use a auxiliar Function to remove all duplicates in a list:
+    Its a recusive Function that check if the first element in a list,
+        If it is present, the recursive call proceeds with the rest of the list, excluding the first element.
+        If it is not present, the first element is added to the result, and the recursive call processes the rest of the list.
+
+To get all the cities, we fisrt create a list with all cities, which are the first (index 0) and second (index 1) values of each tuple in the RoadMap,using concatMap Function
+Then we apply the  remove all duplicates.
+
+Function 2:
+A function that return true if 2 cities are adjacent,. For two cities to be adjacent, they must appear together in the same tuple within the RoadMap
+To achieve this we use the any function ,passing an auxiliar function that check if The first city in the tuple (index 0) matches one of the cities we are checking (city1), 
+and the second city in the tuple (index 1) matches the other city (city2).
+Since the graph is undirected, we also need to check the reverse.
+
+
+Function 3.
+Function that calculate the distance between 2 cities,
+the distance between city 1 and city 2 can be checked by geting the third value of tuple (city1,city2,Dist) or (city2,city1,Dist) .
+
+Function 4:
+returns the cities adjacent to a particular city, to achive this we use list compreension to get all cities that have the input city as pair
+
+function 5:
+Racicionio:
+
+
+
+
+

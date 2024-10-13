@@ -19,10 +19,15 @@ removeduplicates [] = []
 removeduplicates (x:xs) | x `elem` xs = removeduplicates xs 
                         | otherwise = x : removeduplicates xs 
             
-distanceBetween :: RoadMap -> City -> City -> Maybe Distance
-distanceBetween themap city1 city2 = let result = [distance | (x,y,distance) <- themap, x == city1 && y == city2]                               
-                                in if result == [] then Nothing 
-                                else head result
+-- distanceBetween :: RoadMap -> City -> City -> Maybe Distance
+-- distanceBetween themap city1 city2 = let result = [distance | (x,y,distance) <- themap, x == city1 && y == city2]                               
+--                                 in if result == [] then Nothing 
+--                                 else head result
+
+distPath :: RoadMap -> [City] -> [Maybe Distance]
+distPath roadMap path =
+    let pairs = zip path (tail path)  -- Create pairs of consecutive cities
+    in map (\(city1, city2) -> distance roadMap city1 city2) pairs
 
 -- tha main functions
 
@@ -31,19 +36,32 @@ cities themap = removeduplicates(concat(map(\(x,y,_) -> [x,y]) themap)) -- modif
 
 
 areAdjacent :: RoadMap -> City -> City -> Bool
-areAdjacent themap city1 city2 = any (\(x,y,_) -> (x == city1) && (y == city2)) themap 
+areAdjacent themap city1 city2 = any (\(x,y,_) -> (x == city1 && y == city2) || (x == city2 && y == city1)) themap 
 
 distance :: RoadMap -> City -> City -> Maybe Distance
-distance themap city1 city2 = let result = [Just dist | (x,y,dist) <- themap, (x == city1) && (y == city2)]                               
-                                in if result == [] then Nothing 
+distance themap city1 city2 = let result = [Just dist | (x,y,dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]                               
+                                in if null result then Nothing 
                                 else head  result
                      
 
 adjacent :: RoadMap -> City -> [(City,Distance)]
 adjacent themap city1 = [(if x == city1 then y else x, dist) | (x,y,dist) <- themap, x == city1 || y == city1] 
 
+
+
 pathDistance :: RoadMap -> Path -> Maybe Distance
-pathDistance themap thepath = if thepath == [] then Just 0 else if length thepath == 1 then Just 0 else if length thepath == 2 then distance themap if distanceBetween themap (head thepath) (last thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (last thepath))) else if distanceBetween themap (head thepath) (head (tail thepath)) == Nothing then Nothing else if pathDistance themap (tail thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (head (tail thepath))) + the (pathDistance themap (tail thepath)))
+pathDistance roadMap path 
+    |null path || length path ==1 = Just 0
+    |otherwise  =
+        let dists=distPath roadMap path
+        in if any (==Nothing) dists 
+            then Nothing
+             else Just (sum (map (\(Just d) -> d) dists))  --THis map is to extract only the just, it will extract all values because before entering the else 
+                                                            --Its garanted that the list dont have nothings, so i use the map just to tranform all values in ints
+                                                            --Need to ask teacher
+
+
+--pathDistance themap thepath = if thepath == [] then Just 0 else if length thepath == 1 then Just 0 else if length thepath == 2 then distance themap if distanceBetween themap (head thepath) (last thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (last thepath))) else if distanceBetween themap (head thepath) (head (tail thepath)) == Nothing then Nothing else if pathDistance themap (tail thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (head (tail thepath))) + the (pathDistance themap (tail thepath)))
 
 
 rome :: RoadMap -> [City]
