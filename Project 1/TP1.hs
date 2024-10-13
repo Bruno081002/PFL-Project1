@@ -24,10 +24,25 @@ removeduplicates (x:xs) | x `elem` xs = removeduplicates xs
 --                                 in if result == [] then Nothing 
 --                                 else head result
 
-distPath :: RoadMap -> [City] -> [Maybe Distance]
+distPath :: RoadMap -> [City] -> [Maybe Distance]  --Gives a list with all dist in the path ex [city1,city2,city3,city4] gives [Dist12,Dist23,Dist34]
 distPath roadMap path =
     let pairs = zip path (tail path)  -- Create pairs of consecutive cities
     in map (\(city1, city2) -> distance roadMap city1 city2) pairs
+
+
+
+roadMaprec :: RoadMap -> [City] -> Int -> [City] -> [City]  --Not sure about it
+
+roadMaprec _ [] _ acc = acc
+roadMaprec road (x:xs) num acc =
+    let adj = adjacent road x
+    in if num < length adj 
+    then roadMaprec road xs (length adj) [x]
+    else if num > length adj
+        then   roadMaprec road xs num acc
+        else roadMaprec road xs (length adj) (x : acc)
+
+   
 
 -- tha main functions
 
@@ -64,8 +79,10 @@ pathDistance roadMap path
 --pathDistance themap thepath = if thepath == [] then Just 0 else if length thepath == 1 then Just 0 else if length thepath == 2 then distance themap if distanceBetween themap (head thepath) (last thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (last thepath))) else if distanceBetween themap (head thepath) (head (tail thepath)) == Nothing then Nothing else if pathDistance themap (tail thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (head (tail thepath))) + the (pathDistance themap (tail thepath)))
 
 
-rome :: RoadMap -> [City]
-rome = undefined
+rome :: RoadMap -> [City] --get nim road for each city lengh adjacent city
+rome roadMap=roadMaprec roadMap (cities roadMap) 0 [] --Pass the roadmap the lis of cities
+    
+
 
 isStronglyConnected :: RoadMap -> Bool
 isStronglyConnected = undefined
