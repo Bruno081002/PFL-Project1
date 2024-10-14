@@ -1,4 +1,3 @@
-import GHC.Exts (the)
 --import qualified Data.List
 --import qualified Data.Array
 --import qualified Data.Bits
@@ -32,7 +31,6 @@ distPath roadMap path =
 
 
 roadMaprec :: RoadMap -> [City] -> Int -> [City] -> [City]  --Not sure about it
-
 roadMaprec _ [] _ acc = acc
 roadMaprec road (x:xs) num acc =
     let adj = adjacent road x
@@ -40,9 +38,15 @@ roadMaprec road (x:xs) num acc =
     then roadMaprec road xs (length adj) [x]
     else if num > length adj
         then   roadMaprec road xs num acc
-        else roadMaprec road xs (length adj) (x : acc)
+    else roadMaprec road xs (length adj) (x : acc)
 
-   
+  
+mydfs :: RoadMap -> [City] -> [City] -> [City]
+mydfs _ [] visited = visited
+mydfs themap (atual:stack) visited | atual `elem` visited = mydfs themap stack visited
+                                   | otherwise = mydfs themap (adjacentCities ++ stack) (atual:visited)
+                                   where adjacentCities = [city | (city,_) <- adjacent themap atual] 
+
 
 -- tha main functions
 
@@ -84,9 +88,9 @@ rome roadMap=roadMaprec roadMap (cities roadMap) 0 [] --Pass the roadmap the lis
     
 
 
-isStronglyConnected :: RoadMap -> Bool
-isStronglyConnected = undefined
-
+isStronglyConnected :: RoadMap -> Bool  -- ask teacher about the output
+isStronglyConnected themap =  length(mydfs themap [head (cities themap)] []) == length(cities themap)
+    
 shortestPath :: RoadMap -> City -> City -> [Path]
 shortestPath = undefined
 

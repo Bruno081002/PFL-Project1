@@ -27,7 +27,7 @@ returns the cities adjacent to a particular city, to achive this we use list com
 function 5:
 Racicionio:
 
-
-
+function 7:
+In the function 7 we have to see if the graph is strongly connected, as we know that strongly connected graphs are graph that every vertez is reached from every other vertex, to do that we implemented an auxiliar function that is bfs to 
 
 
