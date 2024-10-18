@@ -82,11 +82,13 @@ areAdjacent :: RoadMap -> City -> City -> Bool
 areAdjacent themap city1 city2 = any (\(x, y, _) -> (x == city1 && y == city2) || (x == city2 && y == city1)) themap
 
 distance :: RoadMap -> City -> City -> Maybe Distance
-distance themap city1 city2 =
-  let result = [Just dist | (x, y, dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]
-   in if null result
-        then Nothing
-        else head result
+distance themap city1 city2
+  | city1 == city2 = Just 0
+  | otherwise =
+      let result = [Just dist | (x, y, dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]
+       in if null result
+            then Nothing
+            else head result
 
 adjacent :: RoadMap -> City -> [(City, Distance)]
 adjacent themap city1 = [(if x == city1 then y else x, dist) | (x, y, dist) <- themap, x == city1 || y == city1]
