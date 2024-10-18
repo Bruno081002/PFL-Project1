@@ -1,4 +1,4 @@
---import qualified Data.List
+import qualified Data.List
 --import qualified Data.Array
 --import qualified Data.Bits
 
@@ -15,9 +15,9 @@ type RoadMap = [(City,City,Distance)]
 -- auxiliar functions
 removeduplicates :: Eq a => [a] -> [a]
 removeduplicates [] = []
-removeduplicates (x:xs) | x `elem` xs = removeduplicates xs 
-                        | otherwise = x : removeduplicates xs 
-            
+removeduplicates (x:xs) | x `elem` xs = removeduplicates xs
+                        | otherwise = x : removeduplicates xs
+
 -- distanceBetween :: RoadMap -> City -> City -> Maybe Distance
 -- distanceBetween themap city1 city2 = let result = [distance | (x,y,distance) <- themap, x == city1 && y == city2]                               
 --                                 in if result == [] then Nothing 
@@ -34,46 +34,56 @@ roadMaprec :: RoadMap -> [City] -> Int -> [City] -> [City]  --Not sure about it
 roadMaprec _ [] _ acc = acc
 roadMaprec road (x:xs) num acc =
     let adj = adjacent road x
-    in if num < length adj 
+    in if num < length adj
     then roadMaprec road xs (length adj) [x]
     else if num > length adj
         then   roadMaprec road xs num acc
     else roadMaprec road xs (length adj) (x : acc)
 
-  
+
 mydfs :: RoadMap -> [City] -> [City] -> [City]
 mydfs _ [] visited = visited
 mydfs themap (atual:stack) visited | atual `elem` visited = mydfs themap stack visited
                                    | otherwise = mydfs themap (adjacentCities ++ stack) (atual:visited)
-                                   where adjacentCities = [city | (city,_) <- adjacent themap atual] 
+                                   where adjacentCities = [city | (city,_) <- adjacent themap atual]
+
+
+djikstra :: RoadMap -> City -> City -> [(Path, Distance)] 
+djikstra [] _ _ = []
+djikstra themap source destination = inicialcost : djikstra themap source destination
+    where
+        inicialcost = ([source], 0)
+        allcities = cities themap
+        infinitecosts = [(city, maxBound :: Int) | city <- allcities]
+
 
 
 -- tha main functions
 
 cities :: RoadMap -> [City]
-cities themap = removeduplicates(concat(map(\(x,y,_) -> [x,y]) themap)) -- modifiy this line to implement the solution, for each exercise not solved, leave the function definition like this
+cities themap = removeduplicates (concat (map (\(x,y,_) -> [x,y]) themap)) -- modifiy this line to implement the solution, for each exercise not solved, leave the function definition like this
 
 
 areAdjacent :: RoadMap -> City -> City -> Bool
-areAdjacent themap city1 city2 = any (\(x,y,_) -> (x == city1 && y == city2) || (x == city2 && y == city1)) themap 
+areAdjacent themap city1 city2 = any (\(x,y,_) -> (x == city1 && y == city2) || (x == city2 && y == city1)) themap
 
 distance :: RoadMap -> City -> City -> Maybe Distance
-distance themap city1 city2 = let result = [Just dist | (x,y,dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]                               
-                                in if null result then Nothing 
+distance themap city1 city2 = let result = [Just dist | (x,y,dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]
+                                in if null result then Nothing
                                 else head  result
-                     
+
 
 adjacent :: RoadMap -> City -> [(City,Distance)]
-adjacent themap city1 = [(if x == city1 then y else x, dist) | (x,y,dist) <- themap, x == city1 || y == city1] 
+adjacent themap city1 = [(if x == city1 then y else x, dist) | (x,y,dist) <- themap, x == city1 || y == city1]
 
 
 
 pathDistance :: RoadMap -> Path -> Maybe Distance
-pathDistance roadMap path 
+pathDistance roadMap path
     |null path || length path ==1 = Just 0
     |otherwise  =
         let dists=distPath roadMap path
-        in if any (==Nothing) dists 
+        in if any (==Nothing) dists
             then Nothing
              else Just (sum (map (\(Just d) -> d) dists))  --THis map is to extract only the just, it will extract all values because before entering the else 
                                                             --Its garanted that the list dont have nothings, so i use the map just to tranform all values in ints
@@ -85,14 +95,17 @@ pathDistance roadMap path
 
 rome :: RoadMap -> [City] --get nim road for each city lengh adjacent city
 rome roadMap=roadMaprec roadMap (cities roadMap) 0 [] --Pass the roadmap the lis of cities
-    
 
 
-isStronglyConnected :: RoadMap -> Bool  -- ask teacher about the output
-isStronglyConnected themap =  length(mydfs themap [head (cities themap)] []) == length(cities themap)
-    
+
+isStronglyConnected :: RoadMap -> Bool
+isStronglyConnected themap =  length (mydfs themap [head (cities themap)] []) == length (cities themap)
+
+
 shortestPath :: RoadMap -> City -> City -> [Path]
-shortestPath = undefined
+shortestPath themap city1 city2 = undefined 
+
+
 
 travelSales :: RoadMap -> Path
 travelSales = undefined
