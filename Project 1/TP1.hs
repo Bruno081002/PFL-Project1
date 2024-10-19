@@ -65,14 +65,35 @@ mydfs themap (atual : stack) visited
   where
     adjacentCities = [city | (city, _) <- adjacent themap atual]
 
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- priotity queue
+type Priorityqueue = [((Path, Distance), Int)]
+
+enqueue :: Priorityqueue -> ((Path, Distance), Int) -> Priorityqueue
+enqueue [] x = [x]
+enqueue ((a,b) : x) (c,d)
+  | d < b = (c,d) : (a,b) : x
+  | otherwise = (a,b) : enqueue x (c,d)
+
+dequeue :: Priorityqueue -> (Priorityqueue, (Path, Distance)) 
+dequeue [] = ([], ([], 0))
+dequeue ((path, _):xs) = (xs, path)
+
+
+-- djikstra
 djikstra :: RoadMap -> City -> City -> [(Path, Distance)]
 djikstra [] _ _ = []
 djikstra themap source destination = inicialcost : djikstra themap source destination
   where
-    inicialcost = ([source], 0)
+    inicialcost = ([source], 0) -- inicializamos o custo da source a 0
     allcities = cities themap
-    infinitecosts = [(city, maxBound :: Int) | city <- allcities]
+    infinitecosts = [(city, maxBound :: Int) | city <- allcities] -- inicializamos os custos de todos os vertices com excepcao da source com infinito
+    costs = enqueue [] inicialcost -- inicializamos a fila de prioridade com o custo inicial 
+    visited = [] -- lista de visitados
 
+   
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tha main functions
 
 cities :: RoadMap -> [City]
