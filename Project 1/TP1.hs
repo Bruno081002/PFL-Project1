@@ -1,6 +1,6 @@
 import Data.Array qualified
 import Data.Array qualified as Array
-import Data.List qualified
+import qualified Data.Array
 import Distribution.Simple.Program.HcPkg qualified as Array
 import GHC.Arr (Array (Array))
 
