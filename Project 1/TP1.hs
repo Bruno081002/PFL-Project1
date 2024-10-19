@@ -1,6 +1,6 @@
 import Data.Array qualified
 import Data.Array qualified as Array
-import qualified Data.Array
+import qualified Data.List
 import Distribution.Simple.Program.HcPkg qualified as Array
 import GHC.Arr (Array (Array))
 
@@ -68,29 +68,31 @@ mydfs themap (atual : stack) visited
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- priotity queue
-type Priorityqueue = [((Path, Distance), Int)]
+type Priorityqueue = [(City, Distance)]
 
-enqueue :: Priorityqueue -> ((Path, Distance), Int) -> Priorityqueue
-enqueue [] x = [x]
-enqueue ((a,b) : x) (c,d)
-  | d < b = (c,d) : (a,b) : x
-  | otherwise = (a,b) : enqueue x (c,d)
+enqueue :: Priorityqueue -> (City, Distance) -> Priorityqueue
+enqueue [] (city, dist) = [(city, dist)]
+enqueue (x:xs) (city, dist) | snd x < dist = [x] ++ enqueue xs (city, dist)
+                            | otherwise = [(city, dist)] ++ (x:xs)
 
-dequeue :: Priorityqueue -> (Priorityqueue, (Path, Distance)) 
-dequeue [] = ([], ([], 0))
-dequeue ((path, _):xs) = (xs, path)
+
+dequeue :: Priorityqueue -> Priorityqueue
+dequeue [] = error "Cannot dequeue from an empty queue"  -- Lança erro se a fila estiver vazia
+dequeue pq = filter (/= minElem) pq  -- Remove o elemento de menor distância
+  where
+    minElem = foldr1 (\x y -> if snd x < snd y then x else y) pq  -- Encontra o elemento de menor distância
 
 
 -- djikstra
-djikstra :: RoadMap -> City -> City -> [(Path, Distance)]
-djikstra [] _ _ = []
-djikstra themap source destination = inicialcost : djikstra themap source destination
-  where
-    inicialcost = ([source], 0) -- inicializamos o custo da source a 0
-    allcities = cities themap
-    infinitecosts = [(city, maxBound :: Int) | city <- allcities] -- inicializamos os custos de todos os vertices com excepcao da source com infinito
-    costs = enqueue [] inicialcost -- inicializamos a fila de prioridade com o custo inicial 
-    visited = [] -- lista de visitados
+--djikstra :: RoadMap -> City -> City -> [(City, Distance)]
+--djikstra [] _ _ = []
+--djikstra themap source destination = inicialcost : djikstra themap source destination
+--  where
+--    inicialcost = ([source], 0) -- inicializamos o custo da source a 0
+--    allcities = cities themap
+--    infinitecosts = [(city, maxBound :: Int) | city <- allcities] -- inicializamos os custos de todos os vertices com excepcao da source com infinito
+--    costs = enqueue [] inicialcost -- inicializamos a fila de prioridade com o custo inicial 
+--    visited = [] -- lista de visitados
 
    
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
