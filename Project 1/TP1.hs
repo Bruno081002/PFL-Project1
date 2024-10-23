@@ -142,6 +142,10 @@ shortestPath themap city1 city2 = undefined
 travelSales :: RoadMap -> Path
 travelSales =undefined
 
+buildDistanceTable :: AdjList -> Int -> [((Int, Int), Maybe Distance)]  --build a table to store the values in the DP table
+buildDistanceTable adJlist n = [((i, j), Nothing) | i <- [0..n-1], j <- [0..(1 `Data.Bits.shiftL ` n ) - 1]]
+
+
 
 
 
