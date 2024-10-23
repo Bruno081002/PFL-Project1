@@ -31,3 +31,18 @@ function 7:
 In the function 7 we have to see if the graph is strongly connected, as we know that strongly connected graphs are graph that every vertez is reached from every other vertex, to do that we implemented an auxiliar function that is bfs to 
 
 
+
+Tsp
+
+Using adjancy matrex
+
+building the algoritm
+
+Tsp using dynamic programing and adjacent matrix,
+
+Primeiro tranformar o road numa matrix de adjacencia
+Utilizando programação dinamica temos de usar um array 2d em que x é uma mascara ou seja um inteiro em que os valores a um sao os valores ja visitados
+e o y é a ultima cidade que foi visitada o valor de DP[mask][i]-é o valor de custo minimo de visitar as cidades todas do bitMask e a ultima cidade
+
+caso base:dp[1][0]=0 representa visitar a cidade zero como a utlima cidade
+Para prencher o array usamos um loop que itera por todas as bitMask possiveis(loop externo) e o loop interno ,itera por todas as cidades

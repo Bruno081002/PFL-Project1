@@ -1,11 +1,9 @@
-import Data.Array qualified
-import Data.Array qualified as Array
-import qualified Data.List
-import Distribution.Simple.Program.HcPkg qualified as Array
-import GHC.Arr (Array (Array))
 
--- import qualified Data.Array
--- import qualified Data.Bits
+
+
+import qualified Data.Array
+import qualified Data.Bits
+
 
 -- PFL 2024/2025 Practical assignment 1
 
@@ -19,7 +17,11 @@ type Distance = Int
 
 type RoadMap = [(City, City, Distance)]
 
-type AdjMatrix = Data.Array.Array (Int, Int) (Maybe Distance)
+type AdjList = [(City,[(City,Distance)])]
+
+
+
+
 
 -- auxiliar functions
 removeduplicates :: (Eq a) => [a] -> [a]
@@ -34,12 +36,13 @@ removeduplicates (x : xs)
 --                                 else head result
 -- Array.listArray receive 2 tuples, the indice start and the end, then receives the values passed
 
-roadMapToAdjMatrix :: RoadMap -> AdjMatrix
-roadMapToAdjMatrix road = Array.listArray ((0, 0), (n - 1, n - 1)) values
+roadMapToAdjList :: RoadMap -> AdjList
+roadMapToAdjList road = [(city, adjacent city) | city <-uniqcity]
   where
-    city = cities road
-    n = length city
-    values = [distance road (city !! i) (city !! j) | i <- [0 .. n - 1], j <- [0 .. n - 1]]
+    uniqcity=cities road
+    adjacent city=[(to,dist)|(from,to,dist)<- road,from==city]
+
+
 
 distPath :: RoadMap -> [City] -> [Maybe Distance] -- Gives a list with all dist in the path ex [city1,city2,city3,city4] gives [Dist12,Dist23,Dist34]
 distPath roadMap path =
@@ -105,9 +108,7 @@ areAdjacent :: RoadMap -> City -> City -> Bool
 areAdjacent themap city1 city2 = any (\(x, y, _) -> (x == city1 && y == city2) || (x == city2 && y == city1)) themap
 
 distance :: RoadMap -> City -> City -> Maybe Distance
-distance themap city1 city2
-  | city1 == city2 = Just 0
-  | otherwise =
+distance themap city1 city2 =
       let result = [Just dist | (x, y, dist) <- themap, (x == city1 && y == city2) || (x == city2 && y == city1)]
        in if null result
             then Nothing
@@ -139,7 +140,10 @@ shortestPath :: RoadMap -> City -> City -> [Path]
 shortestPath themap city1 city2 = undefined
 
 travelSales :: RoadMap -> Path
-travelSales = undefined
+travelSales =undefined
+
+
+
 
 tspBruteForce :: RoadMap -> Path
 tspBruteForce = undefined -- only for groups of 3 people; groups of 2 people: do not edit this function
