@@ -81,14 +81,14 @@ dequeue pq = filter (/= minElem) pq  -- Remove o elemento de menor distância
 
 
 -- djikstra
-dijkstra :: RoadMap -> City -> City -> [(City, Distance)]
-dijkstra themap source destination = dijkstraAux pq visited
-  where
-    allCities = cities themap
-    initialCost = (source, 0)
-    infiniteCost = [(city, maxBound :: Int) | city <- allCities, city /= source]
-    pq = enqueue infiniteCost initialCost
-    visited = []
+--dijkstra :: RoadMap -> City -> City -> [(City, Distance)]
+--dijkstra themap source destination = dijkstraAux pq visited
+--  where
+--    allCities = cities themap
+--    initialCost = (source, 0)
+--    infiniteCost = [(city, maxBound :: Int) | city <- allCities, city /= source]
+--    pq = enqueue infiniteCost initialCost
+--    visited = []
     
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tha main functions
