@@ -1,15 +1,4 @@
-import qualified Data.Array
-import Data.Array qualified as Array
 import qualified Data.List
-import Distribution.Simple.Program.HcPkg qualified as Array
-import GHC.Arr (Array (Array))
-
-
-
--- import qualified Data.Bits
-
-
-
 import qualified Data.Array
 import qualified Data.Bits
 
