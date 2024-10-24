@@ -1,3 +1,12 @@
+import qualified Data.Array
+import Data.Array qualified as Array
+import qualified Data.List
+import Distribution.Simple.Program.HcPkg qualified as Array
+import GHC.Arr (Array (Array))
+
+
+
+-- import qualified Data.Bits
 
 
 
@@ -30,11 +39,7 @@ removeduplicates (x : xs)
   | x `elem` xs = removeduplicates xs
   | otherwise = x : removeduplicates xs
 
--- distanceBetween :: RoadMap -> City -> City -> Maybe Distance
--- distanceBetween themap city1 city2 = let result = [distance | (x,y,distance) <- themap, x == city1 && y == city2]
---                                 in if result == [] then Nothing
---                                 else head result
--- Array.listArray receive 2 tuples, the indice start and the end, then receives the values passed
+
 
 roadMapToAdjList :: RoadMap -> AdjList
 roadMapToAdjList road = [(city, adjacent city) | city <-uniqcity]
@@ -87,17 +92,15 @@ dequeue pq = filter (/= minElem) pq  -- Remove o elemento de menor distância
 
 
 -- djikstra
---djikstra :: RoadMap -> City -> City -> [(City, Distance)]
---djikstra [] _ _ = []
---djikstra themap source destination = inicialcost : djikstra themap source destination
---  where
---    inicialcost = ([source], 0) -- inicializamos o custo da source a 0
---    allcities = cities themap
---    infinitecosts = [(city, maxBound :: Int) | city <- allcities] -- inicializamos os custos de todos os vertices com excepcao da source com infinito
---    costs = enqueue [] inicialcost -- inicializamos a fila de prioridade com o custo inicial 
---    visited = [] -- lista de visitados
-
-   
+dijkstra :: RoadMap -> City -> City -> [(City, Distance)]
+dijkstra themap source destination = dijkstraAux pq visited
+  where
+    allCities = cities themap
+    initialCost = (source, 0)
+    infiniteCost = [(city, maxBound :: Int) | city <- allCities, city /= source]
+    pq = enqueue infiniteCost initialCost
+    visited = []
+    
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tha main functions
 
@@ -128,7 +131,6 @@ pathDistance roadMap path
             -- Its garanted that the list dont have nothings, so i use the map just to tranform all values in ints
             -- Need to ask teacher
 
--- pathDistance themap thepath = if thepath == [] then Just 0 else if length thepath == 1 then Just 0 else if length thepath == 2 then distance themap if distanceBetween themap (head thepath) (last thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (last thepath))) else if distanceBetween themap (head thepath) (head (tail thepath)) == Nothing then Nothing else if pathDistance themap (tail thepath) == Nothing then Nothing else Just (the (distanceBetween themap (head thepath) (head (tail thepath))) + the (pathDistance themap (tail thepath)))
 
 rome :: RoadMap -> [City] -- get nim road for each city lengh adjacent city
 rome roadMap = roadMaprec roadMap (cities roadMap) 0 [] -- Pass the roadmap the lis of cities
