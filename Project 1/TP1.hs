@@ -1,6 +1,8 @@
 import qualified Data.List
 import qualified Data.Array
 import qualified Data.Bits
+import Distribution.Simple.Flag (maybeToFlag)
+import Data.Graph (dfs)
 
 
 -- PFL 2024/2025 Practical assignment 1
@@ -53,6 +55,8 @@ roadMaprec road (x : xs) num acc =
           if num > length adj
             then roadMaprec road xs num acc
             else roadMaprec road xs (length adj) (x : acc)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- strong connected functions
 
 mydfs :: RoadMap -> [City] -> [City] -> [City]
 mydfs _ [] visited = visited
@@ -62,35 +66,23 @@ mydfs themap (atual : stack) visited
   where
     adjacentCities = [city | (city, _) <- adjacent themap atual]
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- priotity queue
-type Priorityqueue = [(City, Distance)]
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- shortest path functions
 
-enqueue :: Priorityqueue -> (City, Distance) -> Priorityqueue
-enqueue [] (city, dist) = [(city, dist)]
-enqueue (x:xs) (city, dist) | snd x < dist = [x] ++ enqueue xs (city, dist)
-                            | otherwise = [(city, dist)] ++ (x:xs)
+dfsShortestPath :: RoadMap -> City -> City -> Path -> Distance -> [(Path, Distance)] -> [(Path, Distance)]
+dfsShortestPath theamap sour dest path dist allpaths 
+                                                      | dist > googdistances = allpaths
+                                                      | sour == dest = if dist < googdistances then [(path ++ [sour], dist)] else allpaths
+                                                      | otherwise = foldl (\acc (unvisited, edgeDist) -> dfsShortestPath theamap unvisited dest (path ++ [sour]) (dist + edgeDist) acc) allpaths adjunvisited
+                                                      where
+                                                        adjunvisited = [(unvisited, dist) | (unvisited, dist) <- adjacent theamap sour, unvisited `notElem` path]
+                                                        googdistances = if null allpaths then (maxBound :: Int) else snd (head allpaths)  
 
-
-dequeue :: Priorityqueue -> Priorityqueue
-dequeue [] = error "Cannot dequeue from an empty queue"  -- Lança erro se a fila estiver vazia
-dequeue pq = filter (/= minElem) pq  -- Remove o elemento de menor distância
-  where
-    minElem = foldr1 (\x y -> if snd x < snd y then x else y) pq  -- Encontra o elemento de menor distância
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
--- djikstra
---dijkstra :: RoadMap -> City -> City -> [(City, Distance)]
---dijkstra themap source destination = dijkstraAux pq visited
---  where
---    allCities = cities themap
---    initialCost = (source, 0)
---    infiniteCost = [(city, maxBound :: Int) | city <- allCities, city /= source]
---    pq = enqueue infiniteCost initialCost
---    visited = []
-    
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tha main functions
 
 cities :: RoadMap -> [City]
@@ -128,16 +120,16 @@ isStronglyConnected :: RoadMap -> Bool
 isStronglyConnected themap = length (mydfs themap [head (cities themap)] []) == length (cities themap)
 
 shortestPath :: RoadMap -> City -> City -> [Path]
-shortestPath themap city1 city2 = undefined
+shortestPath themap city1 city2 
+  | city1 == city2 = [[city1]]
+  | null (map fst (dfsShortestPath themap city1 city2 [] 0 [])) = []
+  | otherwise = map fst (dfsShortestPath themap city1 city2 [] 0 [])
 
 travelSales :: RoadMap -> Path
 travelSales =undefined
 
 buildDistanceTable :: AdjList -> Int -> [((Int, Int), Maybe Distance)]  --build a table to store the values in the DP table
 buildDistanceTable adJlist n = [((i, j), Nothing) | i <- [0..n-1], j <- [0..(1 `Data.Bits.shiftL ` n ) - 1]]
-
-
-
 
 
 tspBruteForce :: RoadMap -> Path
@@ -152,3 +144,6 @@ gTest2 = [("0", "1", 10), ("0", "2", 15), ("0", "3", 20), ("1", "2", 35), ("1", 
 
 gTest3 :: RoadMap -- unconnected graph
 gTest3 = [("0", "1", 4), ("2", "3", 2)]
+
+gTest5 :: RoadMap
+gTest5 = [("0","1",4),("0","2",1),("2","3",1), ("3","4",1), ("4", "1", 1), ("0","5",2),("5","1",2)]
