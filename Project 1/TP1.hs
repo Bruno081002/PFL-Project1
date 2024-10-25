@@ -70,14 +70,15 @@ mydfs themap (atual : stack) visited
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- shortest path functions
 
+
 dfsShortestPath :: RoadMap -> City -> City -> Path -> Distance -> [(Path, Distance)] -> [(Path, Distance)]
 dfsShortestPath theamap sour dest path dist allpaths 
                                                       | dist > googdistances = allpaths
-                                                      | sour == dest = if dist < googdistances then [(path ++ [sour], dist)] else allpaths
+                                                      | sour == dest = if (dist < googdistances) then [(path ++ [sour], dist)] else (path ++ [sour], dist) : allpaths
                                                       | otherwise = foldl (\acc (unvisited, edgeDist) -> dfsShortestPath theamap unvisited dest (path ++ [sour]) (dist + edgeDist) acc) allpaths adjunvisited
                                                       where
                                                         adjunvisited = [(unvisited, dist) | (unvisited, dist) <- adjacent theamap sour, unvisited `notElem` path]
-                                                        googdistances = if null allpaths then (maxBound :: Int) else snd (head allpaths)  
+                                                        googdistances = if null allpaths then (maxBound :: Int) else snd (head allpaths)
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
