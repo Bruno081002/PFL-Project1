@@ -1,7 +1,6 @@
-import qualified Data.List
-import qualified Data.Array
-import qualified Data.Bits
-
+import  Data.List
+import  Data.Array
+import  Data.Bits
 
 
 -- PFL 2024/2025 Practical assignment 1
@@ -18,24 +17,18 @@ type RoadMap = [(City, City, Distance)]
 
 type AdjList = [(City,[(City,Distance)])]
 
-
+type AdjMatrix = Array (Int, Int) (Maybe Distance)
 
 
 
 -- auxiliar functions
+
+
 removeduplicates :: (Eq a) => [a] -> [a]
 removeduplicates [] = []
 removeduplicates (x : xs)
   | x `elem` xs = removeduplicates xs
   | otherwise = x : removeduplicates xs
-
-
-
-roadMapToAdjList :: RoadMap -> AdjList
-roadMapToAdjList road = [(city, adjacent city) | city <-uniqcity]
-  where
-    uniqcity=cities road
-    adjacent city=[(to,dist)|(from,to,dist)<- road,from==city]
 
 
 
@@ -124,17 +117,85 @@ shortestPath themap city1 city2
   | city1 == city2 = [[city1]]
   | null (map fst (dfsShortestPath themap city1 city2 [] 0 [])) = []
   | otherwise = map fst (dfsShortestPath themap city1 city2 [] 0 [])
+---------------------------------------------------------------------------------------------
+toAdjMatrix :: [City] -> RoadMap -> AdjMatrix
+toAdjMatrix cities roadmap = array ((0, 0), (n-1, n-1))
+    [((i, j), distance roadmap (cities !! i) (cities !! j)) | i <- [0..n-1], j <- [0..n-1]]
+  where
+    n = length cities
+    
+-- Check is all cities are conected from city zero
+isConnected :: AdjMatrix -> Int -> Bool
+isConnected adjMatrix startCity = length visitedCities == numCities
+  where
+    n = fst (snd (bounds adjMatrix))
+    numCities = n + 1
+    visitedCities = dfs startCity []
+
+    neighbors :: Int -> [Int]
+    neighbors city = [nextCity | nextCity <- [0..n], isConnectedCity city nextCity]
+
+    isConnectedCity :: Int -> Int -> Bool
+    isConnectedCity city1 city2 = case adjMatrix ! (city1, city2) of
+                                     Nothing -> False
+                                     Just _  -> True
+    dfs :: Int -> [Int] -> [Int]
+    dfs city visited
+      | city `elem` visited = visited
+      | otherwise = foldl (flip dfs) (city : visited) (neighbors city)
+--------------------------------
+
+
+baseCase :: AdjMatrix -> Int -> (Int, [Int])
+baseCase adjMatrix currentCity =
+  case adjMatrix ! (currentCity, 0) of
+    Just d  -> (d, [0])  -- Return distance and path back to start
+    Nothing -> (maxBound, [])  -- No path back to start
+
+-- Recursive TSP function
+tsp :: AdjMatrix -> Int -> Int -> Int -> (Int, [Int])
+tsp adjMatrix visited currCity allVisited
+  | visited == allVisited = baseCase adjMatrix currCity
+  | otherwise = explorePaths adjMatrix visited currCity allVisited
+
+-- Explore possible paths from the current city
+explorePaths :: AdjMatrix -> Int -> Int -> Int -> (Int, [Int])
+explorePaths adjMatrix visited currentCity allVisited =
+  let n = fst (snd (bounds adjMatrix)) + 1
+  in minimumBy (\(d1, _) (d2, _) -> compare d1 d2) 
+     [ let (nextCost, subPath) = exploreNext adjMatrix visited currentCity nextCity allVisited
+       in (nextCost, nextCity : subPath)
+     | nextCity <- [0..n-1],not (visited `testBit` nextCity),nextCity /= currentCity
+     ]
+-- Explore the next city
+exploreNext :: AdjMatrix -> Int -> Int -> Int -> Int -> (Int, [Int])
+exploreNext adjMatrix visited currentCity nextCity allVisited =
+  case adjMatrix ! (currentCity, nextCity) of
+    Just d ->
+      let (tspNextCost, tsPSubPath) = tsp adjMatrix (visited `setBit` nextCity) nextCity allVisited
+      in (d + tspNextCost, tsPSubPath) 
+    
+    Nothing -> (maxBound, [])
 
 travelSales :: RoadMap -> Path
-travelSales =undefined
-
-buildDistanceTable :: AdjList -> Int -> [((Int, Int), Maybe Distance)]  --build a table to store the values in the DP table
-buildDistanceTable adJlist n = [((i, j), Nothing) | i <- [0..n-1], j <- [0..(1 `Data.Bits.shiftL ` n ) - 1]]
-
-
+travelSales roadmap =
+  let citiesL = cities roadmap
+      n = length citiesL
+      adjMatrix = toAdjMatrix citiesL roadmap
+      allVisited = (1 `shiftL` n) - 1
+  in if isConnected adjMatrix 0
+     then
+       let (cost, indexPath) = tsp adjMatrix 1 0 allVisited
+           finalPath = if last indexPath == 0
+                       then 0 : indexPath       -- `indexPath` já termina em 0, então não adicionar outro
+                       else 0 : indexPath ++ [0] -- `indexPath` não termina em 0, adicionar um
+       in if cost == maxBound
+          then [] 
+          else map (citiesL !!) finalPath
+     else []
+--------------------------------------------------------------------------------------------
 tspBruteForce :: RoadMap -> Path
 tspBruteForce = undefined -- only for groups of 3 people; groups of 2 people: do not edit this function
-
 -- Some graphs to test your work
 gTest1 :: RoadMap
 gTest1 = [("7", "6", 1), ("8", "2", 2), ("6", "5", 2), ("0", "1", 4), ("2", "5", 4), ("8", "6", 6), ("2", "3", 7), ("7", "8", 7), ("0", "7", 8), ("1", "2", 8), ("3", "4", 9), ("5", "4", 10), ("1", "7", 11), ("3", "5", 14)]
