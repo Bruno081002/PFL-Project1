@@ -117,7 +117,8 @@ shortestPath themap city1 city2
   | city1 == city2 = [[city1]]
   | null (map fst (dfsShortestPath themap city1 city2 [] 0 [])) = []
   | otherwise = map fst (dfsShortestPath themap city1 city2 [] 0 [])
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 toAdjMatrix :: [City] -> RoadMap -> AdjMatrix
 toAdjMatrix cities roadmap = array ((0, 0), (n-1, n-1))
     [((i, j), distance roadmap (cities !! i) (cities !! j)) | i <- [0..n-1], j <- [0..n-1]]
@@ -143,7 +144,7 @@ isConnected adjMatrix startCity = length visitedCities == numCities
     dfs city visited
       | city `elem` visited = visited
       | otherwise = foldl (flip dfs) (city : visited) (neighbors city)
---------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 baseCase :: AdjMatrix -> Int -> (Int, [Int])
