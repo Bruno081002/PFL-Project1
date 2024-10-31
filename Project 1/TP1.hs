@@ -106,13 +106,14 @@ shortestPath themap city1 city2
   | otherwise = map fst (dfsShortestPath themap city1 city2 [] 0 [])
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-toAdjMatrix :: [City] -> RoadMap -> AdjMatrix
-toAdjMatrix cities roadmap =
-  array
-    ((0, 0), (n - 1, n - 1))
-    [((i, j), distance roadmap (cities !! i) (cities !! j)) | i <- [0 .. n - 1], j <- [0 .. n - 1]]
+toAdjMatrix :: RoadMap -> AdjMatrix
+toAdjMatrix mapa = Data.Array.array limites [((i, j), distance mapa (show i) (show j)) 
+                                             | i <- [0..numCidades - 1], j <- [0..numCidades - 1]]
   where
-    n = length cities
+    ordenadas = Data.List.sort (cities mapa)
+    numCidades = length ordenadas
+    limites = ((0, 0), (numCidades - 1, numCidades - 1))
+
 
 -- Check if all cities are connected starting from a specific city.
 
@@ -136,26 +137,24 @@ isConnected adjMatrix startCity = length visitedCities == numCities
       | city `elem` visited = visited
       | otherwise = foldl (\acc next -> dfs next acc) (city : visited) (neighbors city)
 
--- Find the minimum path among a list of paths.
-minPath :: [(Distance, Path)] -> (Distance, Path)
-minPath [] = (maxBound, [])
-minPath (x : xs) = foldl comparePaths x xs
-  where
-    comparePaths (d1, p1) (d2, p2) = if d1 < d2 then (d1, p1) else (d2, p2)
+
 
 -- Base case for TSP when all cities have been visited.
 baseCase :: AdjMatrix -> Int -> Int -> Path -> (Distance, Path)
 baseCase adjMatrix currCity allVisited currPath
   | Just distance <- adjMatrix ! (currCity, 0) = (distance, reverse (show currCity : currPath))  
-  | otherwise = (maxBound, [])  
+  | otherwise = (9999999999, [])  
 
 getDistFromAjd :: AdjMatrix -> Int -> Int -> Distance
 getDistFromAjd adjM city1 city2 
   | Just distance <- adjM ! (city1, city2) = distance  
-  | otherwise = maxBound
+  | otherwise = 9999999999
 
 
 -- Recursive function to find the minimum path for TSP.
+minByDist :: (Int, Path) -> (Int, Path) -> Ordering
+minByDist (dist1, _) (dist2, _) = compare dist1 dist2
+
 tspAdjAux :: AdjMatrix -> Int -> Int -> Int -> Path -> (Distance, Path)
 tspAdjAux adjMatrix visitedCities currCity allVisited currPath
   | visitedCities == allVisited = baseCase adjMatrix currCity allVisited currPath
@@ -166,12 +165,10 @@ tspAdjAux adjMatrix visitedCities currCity allVisited currPath
               | c <- [0 .. nMax],
                 not (visitedCities `testBit` c),
                 let d = getDistFromAjd adjMatrix currCity c,
-                let (newD, newPath) = tspAdjAux adjMatrix (visitedCities `setBit` c) c allVisited (show currCity : currPath),
-                newD /= maxBound
+                let (newD, newPath) = tspAdjAux adjMatrix (visitedCities `setBit` c) c allVisited (show currCity : currPath)
             ]
-
-          (minDist, resultPath) = minPath paths
-       in (minDist, resultPath)
+          (minDist, resultPath) = minimumBy minByDist paths
+      in (minDist, resultPath)
 
 -- Main function to solve the Traveling Salesman Problem (TSP).
 travelSales :: RoadMap -> Path
@@ -181,7 +178,7 @@ travelSales road =
     else snd (tspAdjAux adjM visited currCity allVisited path) ++ ["0"]
   where
     lCitys = cities road
-    adjM = toAdjMatrix lCitys road
+    adjM = toAdjMatrix road
     visited = Data.Bits.bit 0
     currCity = 0
     allVisited = (1 `shiftL` length lCitys) - 1

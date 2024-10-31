@@ -88,18 +88,43 @@ Basicly it just uses the auxiliar functiopn roadMapRec
 
 ### function 8:
 
-### Function 9:
+### Function 9: TSP
 
-#### Tsp
+The algorithm used is based on a **dynamic programming** strategy that tracks the state of visited cities using a bitmask with `n` bits, where `n` is the number of cities in the graph. 
 
-The algoritm used was an algoritm based in a dynamic programing strategy that stores the stage of the proceced cities using a bitMask, with n bits. N is the number of cities in the graph.Let me give an exemplo so its easirer do understand.
-When the first three cities are already visited the bit mask is 1110000.
-The algoritm uses an adjancy matrix thsat stores the disntance of every adjancy city of the graph,so its easier to get the values of the distance between 2 cities
-The fucntions tsp use some auxiliar functions and i will explain them:
+#### Overview
 
-Isconnected-Is a very importante function  that uses a dfs to serach if from a certen city it can reach all of other cities.
-Dfs is a recursive function:
-    The base case is when the input city is found it retuns the list of the cities found
-    The recursive case uses a foldL,that add a list of a city to acumultation
+- The bitmask allows the algorithm to efficiently track which cities have been visited. For example, if the first three cities are visited, the bitmask would be `1110000`.
+- The algorithm also uses an **adjacency matrix** to store the distance between each pair of cities, which makes it easier to access distances between any two cities directly.
 
+#### Auxiliary Functions
 
+The `tsp` function relies on several auxiliary functions, explained below:
+
+##### `isConnected`
+This function is essential because it uses **Depth-First Search (DFS)** to verify if, from a given starting city, all other cities in the graph are reachable. This check is critical since a TSP solution is only possible in a fully connected graph.
+
+- **DFS**:
+  - **Base Case**: If the current city is already in the `visited` list, DFS returns the `visited` list unchanged, preventing redundant visits and avoiding infinite loops, especially in cyclic graphs.
+  - **Recursive Case**: If the city has not been visited:
+    - Adds the city to the `visited` list.
+    - Recursively applies DFS to each neighboring city of the current city, using `foldl`:
+      - `foldl` iterates over each neighbor.
+      - Calls DFS for each neighbor, using the updated `visited` list as the accumulator.
+
+##### `tspAdjAux`
+This function calculates the TSP path using the adjacency matrix and the bitmask.
+
+- **Base Case**: When all cities have been visited (indicated by a bitmask where all bits are set to `1`), `tspAdjAux` checks if there is a connection from the final city back to the starting city. If a connection exists, it returns the distance of this complete path; if not, it returns a very large value (representing infinity) to indicate an invalid path.
+
+- **Recursive Case**: For incomplete paths, the function attempts to visit each unvisited city:
+  - **Generate Possible Paths**: For each unvisited city, it calculates the distance between the current city and the next unvisited city using the adjacency matrix.
+  - **Recursive Call**: The function then recursively calls itself, marking this next city as visited and updating the path. The `currCity` is updated to this next city in preparation for the next recursive step.
+
+### Main Function
+
+1. **Graph Connectivity Check**: Before calling `tspAdjAux`, the main function uses `isConnected` to ensure that the input `RoadMap` is fully connected. A TSP solution is impossible for disconnected graphs.
+
+2. **Preparation of Initial Values**:
+   - Converts the `RoadMap` to an adjacency matrix (`adjM`).
+   - Initializes variables like `visited` (marking the start city), `allVisited` (a bitmask representing all cities as visited), and `currCity` (starting at city `0`).
