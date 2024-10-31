@@ -89,92 +89,17 @@ Basicly it just uses the auxiliar functiopn roadMapRec
 ### function 8:
 
 ### Function 9:
+
 #### Tsp
 
-##### Using adjancy matrex
+The algoritm used was an algoritm based in a dynamic programing strategy that stores the stage of the proceced cities using a bitMask, with n bits. N is the number of cities in the graph.Let me give an exemplo so its easirer do understand.
+When the first three cities are already visited the bit mask is 1110000.
+The algoritm uses an adjancy matrix thsat stores the disntance of every adjancy city of the graph,so its easier to get the values of the distance between 2 cities
+The fucntions tsp use some auxiliar functions and i will explain them:
 
-building the algoritm 
+Isconnected-Is a very importante function  that uses a dfs to serach if from a certen city it can reach all of other cities.
+Dfs is a recursive function:
+    The base case is when the input city is found it retuns the list of the cities found
+    The recursive case uses a foldL,that add a list of a city to acumultation
 
-Tsp using dynamic programing and adjacent matrix,
-
-Explicação do algoritmo do tsp:
-
-
-Tsp-O algoritmo usado é um algoritm que usa programação dinamica para a diminuicao do numero de calculos realizados em pequenas 
-operacoes recursivas.Desta forma sao armazenados  distancia minima entre I J e o seu respetivo caminho,este caminho é armazenado usando
-uma bitMask que contem as cidades visitadas a 1.
-    bitMask-Esta pode armazenar 2^n bits,n é o numero de cidades
-Atributos da funcao Tsp:
-    AdjMatrix-Matrix que contem as cidades e as suas distancias
-    visited-BiTMask explicada em cima 
-    cuurentcity-A cidade atual,cidade que esta a ser explorda
-    AllVisited-representa a bitMask com todas as cidades visistadas
-TSP:
-
-    funcao principal que chama todas as outras funcoes auxiliares
-    Esta funcao tem 2 casos, um que verifica se a bitMask visited esta com as cidades ja todas visitadas
-
-    Se for o fim do tsp chama Basecase:
-
-    Em que verifica se existe um caminho entre a ultima cidade encontrada e a primeira cidade 
-        Se existir retorna o segmento do caminho e a distancia
-        Se nao existir retorna um maxBound,para o tsp nao selecionar este caso
-
-
-    Se nao for o fim chama ExplorePath
-
-    Primeiro o n-peite obter as dimenesoes da matrix,usa a funcao bounds que retorna uma tupla com as dimenesoes ((0,0),(n,n))
-    snd-obtem a tupla de index maiores 
-    fst-obtem o primeiro elemnto da tupla
-
-    Depois vem  parte imporante do algoritmo em que usamos minimuBy-
-    funcao que extrai o valor minimo de uma lista usando um comparador customizado-Pretendemos compara o primeiro valor de cada tupla-cost 
-    O minimby é aplicado numa lista de tuplas formada por um cost,path:
-    Esta lista de tuplas e formado por todos os possiveis caminhos entre a cidade atual e todas as possiveis proximas cidades
-        NextCIty: 
-                Nao pode ser a cidade atual
-                Nao pode estar visitada na bit Mask
-    Os valores de cost e path sao obtidos apartir da funcao ExploreNext
-
-    Funcao ExploreNext:
-        funcao que procura a distancia entre a cidade atual e a proxima cidade
-            Se encontra distancia-
-                faz uma chamada recursivas a tsp-em que atualiza a bit mask e marca a nova cidade como visitada
-                Passa a NextCIty como currentCity 
-                Resultado:
-                (d + nextCost, nextCity : subPath)
-            
-                Calcula o cost total-adiciona d ao nextCost calculado pelo tsp-Representada o custo total entre a currcity e a nextCIty
-                Reconstroi o path-adiciona a cidade processada ao subPath,subPath e o caminho processado anteriomente para chegar a currcity
-           Se nao encontrar distancia-coloca maxBound para que o explorePath nao selecione esta cidade
-
-
-
-travelSales 
-
-    funcao principal que evoca tsp e todas as outras funcoes necessarias para a utilização do tsp
-    Cities pra obter as cidades
-    AdjMatrix
-    calcular mascara AllVisited
-    utilizar a funcao isconnected para apenas realizar o algoritm caso o grafo seja conecto
-    e no fim do tsp,realiza algumas alteraçoes no path:
-    then 0 : indexPath      
-     else 0 : indexPath ++ [0]
-    Este caso, foi pq num dos testes utilizados o ultimo valor repetia-se e nao consegui encontraar o motivo do erro
-    por isos fiz esta operação 
-    NO fiz faço uma operacoes de map para que cada cidade obtenha o valor da string destinada,pois eu processo as cidades como int 
-    ao longo das funcoes porem no roadMap sao tudo strings  
-    
-Funcao auxiliar isconnected:
-    funcao que verifica se o grafo é connected-verifica se todas as cidades sao alcansaveis apartir da primeira cidade
-    Utiliza uma funcao neiboarss que retorna uma lista com cidades visitadas  
-
-    depois utiliza a funcao dfs itera por todos os nos alcansaveis apatir do primeiro
-    
-
-    Caso os nos obtidos pela dfs==numcity quer dizer que é connected
-
-
-    
-Funcao auxiliar to AdjMatrix-tranforma um roadMap é uma matrix de adjacencia:
 
