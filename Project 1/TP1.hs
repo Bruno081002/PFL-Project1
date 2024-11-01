@@ -21,7 +21,7 @@ type Path = [City]
 
 -- Represents a distance by an `Int` value.
 type Distance = Int
-1
+
 -- Represents a roadmap by a list of triples, where each triple represents a road between two cities and its distance.
 type RoadMap = [(City, City, Distance)]
 
@@ -359,4 +359,8 @@ gTest3 = [("0", "1", 4), ("2", "3", 2)]
 
 gTest5 :: RoadMap
 gTest5 = [("0", "1", 4), ("0", "2", 1), ("2", "3", 1), ("3", "4", 1), ("4", "1", 1), ("0", "5", 2), ("5", "1", 2)]
+
+
+gTest6 :: RoadMap
+gTest6 = [("0", "1", 5), ("1", "3", 5), ("0", "2", 5), ("2", "3", 5), ("1", "3", 25), ("2", "3", 30)]--Test the shortest path, 0-3
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
